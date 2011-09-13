@@ -1,0 +1,18 @@
+Keyword-Level Demographics Project v0.1.9.12
+Code by Michael King - mike@ipullrank.com
+with contributions by Joshua Giardino - jsgiardino@yahoo.com
+
+The following code was developed to pull search referrers and Facebook data 
+and push it to Google Analytics. The code is meant to be a proof of concept
+for how keyword-level demographics can be devised by combining two readily
+available data sources.
+
+The application of this methodology is thoroughly discussed in Michael King's
+SMX East 2011 presentation "The Past Present and Future of Personas in Search."
+Michael King also goes on to explain the methodology in an SEOMoz post at 
+http://www.seomoz.org/blog/keyword-level-demographics
+
+The Keyword-Level Demographics project is on-going at "The Best Practice" blog
+on ipullrank.com @ http://www.ipullrank.com/blog/keyword-demographics
+
+
