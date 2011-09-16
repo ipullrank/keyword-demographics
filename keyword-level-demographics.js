@@ -30,9 +30,20 @@ function searchRef()
 			urlVars[key] = value;
 
 		});
-		urlVars["q"] = urlVars["q"].replace(/%20/g," ");
+		// Update Google & Bing use q=, Yahoo uses p=
+		if ((url.indexOf ("google.com") !=-1) || (url.indexOf("bing.com") !=-1))
+		{
+			urlVars["q"] = urlVars["q"].replace(/%20/g," ");
 
-		sessvars.ref = urlVars["q"].replace(/\+/g, " ");
+			sessvars.ref = urlVars["q"].replace(/\+/g, " ");
+		}
+		elseif (url.indexOf ("yahoo.com"))
+		{
+			urlVars["p"] = urlVars["p"].replace(/%20/g," ");
+
+			sessvars.ref = urlVars["p"].replace(/\+/g, " ");
+		}
+
 	}
 	else
 	{
