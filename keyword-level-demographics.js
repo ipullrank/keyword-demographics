@@ -14,48 +14,47 @@
 // This function requires the sessvars library by Thomas Frank
 // http://www.thomasfrank.se/sessionvars.html
 
-function searchRef()
-{
-   if (typeof sessvars.ref == 'undefined') 
-   {
-	// grab document referrer
-	var url = String(document.referrer);
-	
-	// confirm they came from search or at least the big 3
-	if ((url.indexOf ("google.com") !=-1) || (url.indexOf ("yahoo.com")  !=-1) || (url.indexOf("bing.com") !=-1))
-	{
- 	    var urlVars = {};
-	    var parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) 	        
-		{      
-			urlVars[key] = value;
-
-		});
-		// Update Google & Bing use q=, Yahoo uses p=
-		if ((url.indexOf ("google.com") !=-1) || (url.indexOf("bing.com") !=-1))
-		{
-			urlVars["q"] = urlVars["q"].replace(/%20/g," ");
-
-			sessvars.ref = urlVars["q"].replace(/\+/g, " ");
+function searchRef() {
+	if(typeof(sessvars) != 'undefined') { // Failsafe
+		if(typeof(sessvars.source) == 'undefined') { // Only set if not already defined
+			// Store referrals
+			var referrals = new Array();
+			// NOTE! Last match wins
+			referrals.push({'match': '^https?\:\/\/(www\.)?google\.[a-z\.]{2,5}\/', 'parameter': 'q', 'type': 'search'}); // Google (all)
+			referrals.push({'match': '^https?\:\/\/(www\.)?bing\.com\/', 'parameter': 'q', 'type': 'search'}); // Bing (all)
+			referrals.push({'match': '^https?\:\/\/([a-z]{2,4})?\.search\.yahoo\.com\/', 'parameter': 'p', 'type': 'search'}); // Bing (all)
+			referrals.push({'match': '^https?\:\/\/[a-z\.\-]+\.facebook\.com\/', 'parameter': '', 'type': 'social'}); // Facebook General (not very effective, since most links are from URL shorteners)
+			// Set default value
+			cleanReferrer = document.referrer.replace(/(^[^\/]+\/\/)/g, '');
+			if(document.referrer == '') {
+				sessvars.source = {'referrer': '', 'type': 'direct', 'keyword': ''};
+			} else {
+				sessvars.source = {'referrer': cleanReferrer, 'type': 'referral', 'keyword': ''};
+				for(i=0;i<referrals.length;i++) {
+					if(RegExp(referrals[i].match).test(document.referrer)) {
+						sessvars.source.type = referrals[i].type;
+						sessvars.source.keyword = getURLParameter(referrals[i].parameter, document.referrer, true);
+					}
+				}
+			}
 		}
-		elseif (url.indexOf ("yahoo.com"))
-		{
-			urlVars["p"] = urlVars["p"].replace(/%20/g," ");
-
-			sessvars.ref = urlVars["p"].replace(/\+/g, " ");
-		}
-
+		return sessvars.source;
+	} else {
+		return null;
 	}
-	else
-	{
-	   sessvars.ref = "not search";
-	}
+}
 
-	return sessvars.ref;
-    }
-
-    else{
-    	return sessvars.ref;
-    }
+// Helper function to get URL parameters
+// Based on gup http://www.netlobo.com/url_query_string_javascript.html
+function getURLParameter (name, url, decode) {
+	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+	var regexS = "[\\?&]"+name+"=([^&#]*)";
+	var regex = new RegExp( regexS );
+	if(!url) url = window.location.href;
+	var results = regex.exec(url);
+	if(results == null) return "";
+	else if(!decode) return results[1];
+	else return results[1].replace(/(\%20|\+)/g, ' '); // Only decode whitespaces
 }
 
 // Function for grabbing Facebook Data
