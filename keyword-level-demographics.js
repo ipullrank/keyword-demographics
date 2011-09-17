@@ -43,6 +43,7 @@ function searchRef() {
 }
 
 // Helper function to get URL parameters
+// Based on gup http://www.netlobo.com/url_query_string_javascript.html
 function getURLParameter (name, url, decode) {
 	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
 	var regexS = "[\\?&]"+name+"=([^&#]*)";
