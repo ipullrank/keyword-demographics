@@ -17,22 +17,24 @@
 function searchRef() {
 	if(typeof(sessvars) != 'undefined') { // Failsafe
 		if(typeof(sessvars.source) == 'undefined') { // Only set if not already defined
-			// Store engines
-			var engines = new Array();
+			// Store referrals
+			var referrals = new Array();
 			// NOTE! Last match wins
-			engines.push({'match': '^https?\:\/\/(www\.)?google\.[a-z\.]{2,5}\/', 'parameter': 'q'}); // Google (all)
-			engines.push({'match': '^https?\:\/\/(www\.)?bing\.com\/', 'parameter': 'q'}); // Bing (all)
-			engines.push({'match': '^https?\:\/\/([a-z]{2,4})?\.search\.yahoo\.com\/', 'parameter': 'p'}); // Bing (all)
+			referrals.push({'match': '^https?\:\/\/(www\.)?google\.[a-z\.]{2,5}\/', 'parameter': 'q', 'type': 'search'}); // Google (all)
+			referrals.push({'match': '^https?\:\/\/(www\.)?bing\.com\/', 'parameter': 'q', 'type': 'search'}); // Bing (all)
+			referrals.push({'match': '^https?\:\/\/([a-z]{2,4})?\.search\.yahoo\.com\/', 'parameter': 'p', 'type': 'search'}); // Bing (all)
+			referrals.push({'match': '^https?\:\/\/[a-z\.\-]+\.facebook\.com\/', 'parameter': '', 'type': 'social'}); // Facebook General (not very effective, since most links are from URL shorteners)
 			// Set default value
+			cleanReferrer = document.referrer.replace(/(^[^\/]+\/\/)/g, '');
 			if(document.referrer == '') {
-				sessvars.source = {'referrer': document.referrer, 'type': 'direct', 'keyword': ''};
+				sessvars.source = {'referrer': '', 'type': 'direct', 'keyword': ''};
 			} else {
-				sessvars.source = {'referrer': document.referrer, 'type': 'referral', 'keyword': ''};
-			}
-			for(i=0;i<engines.length;i++) {
-				if(RegExp(engines[i].match).test(document.referrer)) {
-					sessvars.source.type = 'search';
-					sessvars.source.keyword = getURLParameter(engines[i].parameter, document.referrer, true);
+				sessvars.source = {'referrer': cleanReferrer, 'type': 'referral', 'keyword': ''};
+				for(i=0;i<referrals.length;i++) {
+					if(RegExp(referrals[i].match).test(document.referrer)) {
+						sessvars.source.type = referrals[i].type;
+						sessvars.source.keyword = getURLParameter(referrals[i].parameter, document.referrer, true);
+					}
 				}
 			}
 		}
