@@ -14,48 +14,44 @@
 // This function requires the sessvars library by Thomas Frank
 // http://www.thomasfrank.se/sessionvars.html
 
-function searchRef()
-{
-   if (typeof sessvars.ref == 'undefined') 
-   {
-	// grab document referrer
-	var url = String(document.referrer);
-	
-	// confirm they came from search or at least the big 3
-	if ((url.indexOf ("google.com") !=-1) || (url.indexOf ("yahoo.com")  !=-1) || (url.indexOf("bing.com") !=-1))
-	{
- 	    var urlVars = {};
-	    var parts = url.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) 	        
-		{      
-			urlVars[key] = value;
-
-		});
-		// Update Google & Bing use q=, Yahoo uses p=
-		if ((url.indexOf ("google.com") !=-1) || (url.indexOf("bing.com") !=-1))
-		{
-			urlVars["q"] = urlVars["q"].replace(/%20/g," ");
-
-			sessvars.ref = urlVars["q"].replace(/\+/g, " ");
+function searchRef() {
+	if(typeof(sessvars) != 'undefined') { // Failsafe
+		if(typeof(sessvars.source) == 'undefined') { // Only set if not already defined
+			// Store engines
+			var engines = new Array();
+			// NOTE! Last match wins
+			engines.push({'match': '^https?\:\/\/(www\.)?google\.[a-z\.]{2,5}\/', 'parameter': 'q'}); // Google (all)
+			engines.push({'match': '^https?\:\/\/(www\.)?bing\.com\/', 'parameter': 'q'}); // Bing (all)
+			engines.push({'match': '^https?\:\/\/([a-z]{2,4})?\.search\.yahoo\.com\/', 'parameter': 'p'}); // Bing (all)
+			// Set default value
+			if(document.referrer == '') {
+				sessvars.source = {'referrer': document.referrer, 'type': 'direct', 'keyword': ''};
+			} else {
+				sessvars.source = {'referrer': document.referrer, 'type': 'referral', 'keyword': ''};
+			}
+			for(i=0;i<engines.length;i++) {
+				if(RegExp(engines[i].match).test(document.referrer)) {
+					sessvars.source.type = 'search';
+					sessvars.source.keyword = getURLParameter(engines[i].parameter, document.referrer, true);
+				}
+			}
 		}
-		elseif (url.indexOf ("yahoo.com"))
-		{
-			urlVars["p"] = urlVars["p"].replace(/%20/g," ");
-
-			sessvars.ref = urlVars["p"].replace(/\+/g, " ");
-		}
-
+		return sessvars.source;
+	} else {
+		return null;
 	}
-	else
-	{
-	   sessvars.ref = "not search";
-	}
+}
 
-	return sessvars.ref;
-    }
-
-    else{
-    	return sessvars.ref;
-    }
+// Helper function to get URL parameters
+function getURLParameter (name, url, decode) {
+	name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+	var regexS = "[\\?&]"+name+"=([^&#]*)";
+	var regex = new RegExp( regexS );
+	if(!url) url = window.location.href;
+	var results = regex.exec(url);
+	if(results == null) return "";
+	else if(!decode) return results[1];
+	else return results[1].replace(/(\%20|\+)/g, ' '); // Only decode whitespaces
 }
 
 // Function for grabbing Facebook Data
