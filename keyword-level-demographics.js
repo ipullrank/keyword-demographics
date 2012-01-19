@@ -143,3 +143,24 @@ function fbEnsureInit(callback) {
 		}
 	}
 }
+
+// function to push the demographics data to 
+// Google Analytics
+function pushDemos(referrer, age, gender, location, id)
+{
+
+	_gaq.push(['_setCustomVar',1,'Referrer', referrer, 1]);
+	_gaq.push(['_setCustomVar',2,'Age', age, 1]);
+	_gaq.push(['_setCustomVar',3,'Gender', gender, 1]);
+	_gaq.push(['_setCustomVar',4,'Location', location, 1]);
+	_gaq.push(['_setCustomVar',5,'FB_ID', id, 1]);
+
+	// Shows that the data has been pushed in the console
+	window.console.log("Pushing the following to Google Analytics");
+	window.console.log(referrer);
+	window.console.log(age);
+	window.console.log(gender);
+	window.console.log(location);
+	window.console.log(id);
+
+}
